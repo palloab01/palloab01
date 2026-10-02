@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Portal Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="h-full bg-slate-50 flex flex-col justify-between text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+
+    <header class="w-full py-5 px-6 sm:px-10 flex items-center justify-between border-b border-slate-200 bg-white shadow-xs">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                <i class="fa-brands fa-google-drive text-xl"></i>
+            </div>
+            <div>
+                <span class="font-bold text-lg tracking-tight text-slate-900 block">DriveAccess</span>
+                <span class="text-xs text-slate-500 block -mt-1">Secure Cloud Portal</span>
+            </div>
+        </div>
+        <div id="header-status" class="hidden items-center space-x-2 text-sm text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+            <i class="fa-solid fa-user-shield text-blue-600"></i>
+            <span id="header-username" class="font-medium">User</span>
+        </div>
+    </header>
+
+    <main class="flex-1 flex items-center justify-center p-4 sm:p-6">
+        
+        <!-- Login Card View -->
+        <div id="login-view" class="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-8 transition-all duration-300">
+            <div class="text-center mb-8">
+                <div class="inline-flex w-14 h-14 rounded-2xl bg-blue-50 items-center justify-center text-blue-600 mb-4 shadow-inner">
+                    <i class="fa-solid fa-lock text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Welcome Back</h1>
+                <p class="text-sm text-slate-500 mt-1">Sign in with your credentials to access your Google Drive workspace</p>
+            </div>
+
+            <!-- Error Notification Banner -->
+            <div id="error-banner" class="hidden mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-start space-x-3 transition-all animate-shake">
+                <i class="fa-solid fa-circle-exclamation text-rose-500 mt-0.5"></i>
+                <div class="flex-1">
+                    <span class="font-semibold block">Authentication Failed</span>
+                    <span id="error-message">Invalid username or password.</span>
+                </div>
+            </div>
+
+            <!-- Custom Notification Modal / Box -->
+            <div id="modal-container" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+                <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center transform transition-all">
+                    <div id="modal-icon" class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-4 text-xl">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <h3 id="modal-title" class="text-lg font-bold text-slate-900 mb-2">Notice</h3>
+                    <p id="modal-desc" class="text-sm text-slate-600 mb-6">Message description goes here.</p>
+                    <button onclick="closeModal()" class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition shadow-md shadow-blue-500/20">
+                        Okay
+                    </button>
+                </div>
+            </div>
+
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Username / Email</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-regular fa-user"></i>
+                        </div>
+                        <input type="text" id="username" required autocomplete="username"
+                            class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition"
+                            placeholder="Enter username (e.g. admin)">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Password</label>
+                        <a href="#" onclick="showDemoInfo(event)" class="text-xs text-blue-600 hover:underline font-medium">Demo Credentials?</a>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-regular fa-key"></i>
+                        </div>
+                        <input type="password" id="password" required autocomplete="current-password"
+                            class="w-full pl-10 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition"
+                            placeholder="Enter password (e.g. password)">
+                        <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                            <i id="toggle-icon" class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="submit-btn"
+                        class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-medium rounded-xl shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center space-x-2">
+                        <span>Sign In</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-slate-100 text-center">
+                <p class="text-xs text-slate-500">
+                    Protected workspace environment. Authorized access only.
+                </p>
+            </div>
+        </div>
+
+        <!-- Redirecting / Success View -->
+        <div id="redirect-view" class="hidden w-full max-w-2xl bg-white rounded-2xl shadow-xl shadow-slate-200/60 border border-slate-100 p-8 text-center transition-all duration-300">
+            <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-5 text-2xl shadow-inner">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">Authentication Successful!</h2>
+            <p class="text-slate-600 text-sm mb-6">Welcome back, <span id="logged-user-name" class="font-semibold text-slate-800"></span>. Preparing your secure Google Drive connection...</p>
+
+            <!-- Configurable Drive Link Box -->
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-6 text-left">
+                <div class="flex items-center justify-between mb-3">
+                    <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Target Drive Link / URL</label>
+                    <button onclick="toggleEditLink()" class="text-xs text-blue-600 hover:underline font-medium">
+                        <i class="fa-solid fa-pen-to-square mr-1"></i> Configure Link
+                    </button>
+                </div>
+                <div id="display-link-container" class="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-slate-200 text-sm">
+                    <span id="current-drive-url" class="text-slate-700 truncate mr-2 font-mono text-xs">https://drive.google.com</span>
+                    <span class="text-xs bg-emerald-100 text-emerald-700 font-medium px-2 py-0.5 rounded-full shrink-0">Active</span>
+                </div>
+                <div id="edit-link-container" class="hidden space-y-2">
+                    <input type="url" id="custom-drive-input" class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600" placeholder="https://drive.google.com/drive/folders/...">
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="saveDriveLink()" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700">Save Link</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <a id="drive-redirect-link" href="https://drive.google.com" target="_blank" rel="noopener noreferrer"
+                   class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center space-x-2">
+                    <i class="fa-brands fa-google-drive text-lg"></i>
+                    <span>Open Google Drive Now</span>
+                    <i class="fa-solid fa-external-link text-xs ml-1 opacity-75"></i>
+                </a>
+
+                <button onclick="handleLogout()" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition text-sm">
+                    <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Sign Out / Switch Account
+                </button>
+            </div>
+
+            <p id="countdown-text" class="text-xs text-slate-400 mt-4">Redirecting automatically in <span id="timer">5</span> seconds...</p>
+        </div>
+
+    </main>
+
+    <footer class="w-full py-4 px-6 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
+        &copy; 2026 DriveAccess Portal. All rights reserved. Secure Cloud Authentication.
+    </footer>
+
+    <script>
+        
+        // Default Google Drive destination link
+        let targetDriveUrl = "https://drive.google.com";
+        let countdownInterval = null;
+
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggle-icon');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.className = 'fa-regular fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.className = 'fa-regular fa-eye';
+            }
+        }
+
+        // Show custom demo credentials modal
+        function showDemoInfo(e) {
+            e.preventDefault();
+            showModal("Demo Credentials", "You can log in using any username and password (e.g., username: admin, password: password).", "info");
+        }
+
+        // Modal helper functions
+        function showModal(title, desc, type = "error") {
+            const container = document.getElementById('modal-container');
+            const titleEl = document.getElementById('modal-title');
+            const descEl = document.getElementById('modal-desc');
+            const iconEl = document.getElementById('modal-icon');
+
+            titleEl.textContent = title;
+            descEl.textContent = desc;
+
+            if (type === "info") {
+                iconEl.className = "w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4 text-xl";
+                iconEl.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+            } else {
+                iconEl.className = "w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center mx-auto mb-4 text-xl";
+                iconEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+
+            container.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+        }
+
+        // Handle login submission
+        function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value;
+            const errorBanner = document.getElementById('error-banner');
+            const errorMessage = document.getElementById('error-message');
+            const submitBtn = document.getElementById('submit-btn');
+
+            // Client-side validation
+            if (!usernameInput || !passwordInput) {
+                errorMessage.textContent = "Please fill in all required fields.";
+                errorBanner.classList.remove('hidden');
+                return;
+            }
+
+            // Simulate authentication loader
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Authenticating...</span>';
+
+            setTimeout(() => {
+                // For demonstration, any non-empty username/password is accepted
+                // In a production system, verify against a backend authentication service
+                if (usernameInput.length > 0 && passwordInput.length > 0) {
+                    errorBanner.classList.add('hidden');
+                    transitionToRedirectView(usernameInput);
+                } else {
+                    errorBanner.classList.remove('hidden');
+                    errorMessage.textContent = "Invalid username or password.";
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>';
+                }
+            }, 800);
+        }
+
+        // Transition interface to the redirect portal view
+        function transitionToRedirectView(username) {
+            document.getElementById('login-view').classList.add('hidden');
+            const redirectView = document.getElementById('redirect-view');
+            redirectView.classList.remove('hidden');
+
+            document.getElementById('logged-user-name').textContent = username;
+            
+            // Update header badge
+            document.getElementById('header-status').classList.remove('hidden');
+            document.getElementById('header-status').classList.add('flex');
+            document.getElementById('header-username').textContent = username;
+
+            // Update link displays
+            updateDriveLinkUI();
+
+            // Start auto-redirect countdown (5 seconds)
+            let timeLeft = 5;
+            const timerEl = document.getElementById('timer');
+            
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    // Open Google Drive in new tab or navigate
+                    const finalUrl = document.getElementById('drive-redirect-link').href;
+                    window.open(finalUrl, '_blank');
+                }
+            }, 1000);
+        }
+
+        // Toggle configuration box for the custom Drive link
+        function toggleEditLink() {
+            const displayContainer = document.getElementById('display-link-container');
+            const editContainer = document.getElementById('edit-link-container');
+            const inputField = document.getElementById('custom-drive-input');
+
+            if (editContainer.classList.contains('hidden')) {
+                displayContainer.classList.add('hidden');
+                editContainer.classList.remove('hidden');
+                inputField.value = targetDriveUrl;
+                inputField.focus();
+                // Pause countdown while editing
+                if (countdownInterval) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdown-text').textContent = "Auto-redirect paused while configuring link.";
+                }
+            } else {
+                displayContainer.classList.remove('hidden');
+                editContainer.classList.add('hidden');
+            }
+        }
+
+        // Save custom configured drive link
+        function saveDriveLink() {
+            const inputField = document.getElementById('custom-drive-input');
+            const val = inputField.value.trim();
+            if (val) {
+                targetDriveUrl = val;
+                updateDriveLinkUI();
+                toggleEditLink();
+                showModal("Link Updated", "Your target Google Drive destination has been updated successfully.", "info");
+            } else {
+                showModal("Invalid URL", "Please enter a valid HTTP or HTTPS URL.", "error");
+            }
+        }
+
+        function updateDriveLinkUI() {
+            document.getElementById('current-drive-url').textContent = targetDriveUrl;
+            document.getElementById('drive-redirect-link').href = targetDriveUrl;
+        }
+
+        // Handle user sign out / reset view
+        function handleLogout() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            document.getElementById('redirect-view').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+            document.getElementById('header-status').classList.add('hidden');
+            document.getElementById('header-status').classList.remove('flex');
+            
+            // Reset form inputs
+            document.getElementById('login-form').reset();
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span>Sign In</span><i class="fa-solid fa-arrow-right text-xs"></i>';
+            document.getElementById('error-banner').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
